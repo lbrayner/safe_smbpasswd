@@ -1,1 +1,2 @@
 *.o
+/safe_smbpasswd
