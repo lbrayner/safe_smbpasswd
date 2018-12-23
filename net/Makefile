@@ -1,4 +1,4 @@
-TARGET = safe_smbpasswd
+TARGET = safe_net
 LIBS = -lm
 CC = gcc
 CFLAGS = -g -Wall
