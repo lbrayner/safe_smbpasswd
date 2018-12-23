@@ -1,2 +1,3 @@
 *.o
-/safe_smbpasswd
+safe_smbpasswd
+safe_net
