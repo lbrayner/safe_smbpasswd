@@ -25,6 +25,12 @@ int streq(char const * const left, char const * const right)
     return strcmp(left,right) == 0;
 }
 
+char * mstrcpy(char ** destination, char const * const source)
+{
+    *destination = malloc(strlen(source));
+    return strcpy(*destination,source);
+}
+
 int main (int const argc, char const * const argv[])
 {
     char const * const usage = make_usage(argv[0]);
@@ -32,7 +38,6 @@ int main (int const argc, char const * const argv[])
 
     pid_t pid;
     pid_t ret;
-    /* int timeout = 2000; */
     int status;
     char * command[5];
 
@@ -56,12 +61,12 @@ int main (int const argc, char const * const argv[])
         return 1;
     }
 
-    strcpy(command[index++],file);
-    strcpy(command[index++],"-s");
+    mstrcpy(&command[index++],file);
+    mstrcpy(&command[index++],"-s");
 
     if(argc == 3)
     {
-        strcpy(command[index++],argv[1]);
+        mstrcpy(&command[index++],argv[1]);
         username = argv[2];
     }
     else
@@ -92,7 +97,7 @@ int main (int const argc, char const * const argv[])
         return 1;
     }
 
-    strcpy(command[index++],username);
+    mstrcpy(&command[index++],username);
     command[index++] = NULL;
 
     pid = fork();
@@ -129,21 +134,4 @@ int main (int const argc, char const * const argv[])
     if (execve(file, command, NULL) == -1)
         return 127;
 
-    /* while (0 == (waitret = waitpid(pid, &status, WNOHANG))) */
-    /* { */
-    /*     timeout = timeout - 100; */
-
-    /*     if(timeout < 0) */
-    /*     { */
-    /*         fprintf(stderr, "Timeout.\n"); */
-    /*         return -1; */
-    /*     } */
-
-    /*     sleep(100); */
-    /* } */
-
-    /* if ((ret != -1) && (!WIFEXITED(status) || !WEXITSTATUS(status)) ) */
-    /*     return WEXITSTATUS(status); */
-
-    /* return 0; */
 }
