@@ -9,7 +9,7 @@ The only allowed usage is:
 smbpasswd (-s -a?|-x) USERNAME
 ```
 
-*USERNAME* has to match the regex `"^[a-zA-Z][0-9a-zA-Z._\\-]+$"`.
+*USERNAME* has to match the regex `^[a-zA-Z][0-9a-zA-Z._\\-]+$`.
 *USERNAME* *root* is not allowed.
 
 Meant for **apache** or **nginx**. You can safely grant *sudo* privileges to
