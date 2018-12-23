@@ -8,13 +8,12 @@
 #include <errno.h>
 #include <stdlib.h>
 
-/* Runs /usr/bin/smbpasswd -s (-x|-a)? USERNAME
- * '-s' is compulsory.
+/* Runs /usr/bin/smbpasswd (-s -a?|-x) USERNAME
  * */
 
 char const * make_usage(char const * const name)
 {
-    char const * const pattern = "%s -s [-a|-x] USERNAME\n";
+    char const * const pattern = "%s (-s -a?|-x) USERNAME\n";
     int const size = strlen(pattern) + strlen(name) - 1;
     char * buffer = malloc(size);
     sprintf(buffer,pattern,name);
@@ -47,29 +46,26 @@ int main (int const argc, char const * const argv[])
     regex_t regex;
     char const * username;
 
-    /* TODO disposable */
-    /* int i; */
-
     if(argc < 3 || argc > 4)
     {
         fprintf(stderr, usage);
         return 1;
     }
 
-    if(!streq(argv[1],"-s"))
+    if(argc == 3 && !streq(argv[1], "-s") && !streq(argv[1],"-x"))
     {
         fprintf(stderr, usage);
         return 1;
     }
 
-    if(argc == 4 && !streq(argv[2], "-a") && !streq(argv[2],"-x"))
+    if(argc == 4 && (!streq(argv[1], "-s") || !streq(argv[2],"-a")))
     {
         fprintf(stderr, usage);
         return 1;
     }
 
     mstrcpy(&command[index++],file);
-    mstrcpy(&command[index++],"-s");
+    mstrcpy(&command[index++],argv[1]);
 
     if(argc == 4)
     {
@@ -128,15 +124,6 @@ int main (int const argc, char const * const argv[])
 
         return 0;
     }
-
-    /* printf("%s",command[0]); */
-    /* for(i=1; i<5;i++) */
-    /* { */
-    /*     if(command[i] == NULL) */
-    /*         break; */
-    /*     printf(" %s",command[i]); */
-    /* } */
-    /* printf("\n"); */
 
     if (execve(file, command, NULL) == -1)
         return 127;
