@@ -2,6 +2,12 @@
 #include <regex.h> 
 #include <string.h>
 
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <errno.h>
+/* #include <stdlib.h> */
+
 /* Runs /usr/bin/smbpasswd -s (-x|-a)? USERNAME
  * */
 
@@ -17,12 +23,21 @@ int streq(char * left, char * right)
 
 int main (int argc, char *argv[])
 {
-    const char * const prefix = "/usr/bin/smbpasswd -s";
+    char * const file = "/usr/bin/smbpasswd";
+
+    pid_t pid;
+    pid_t ret;
+    /* int timeout = 2000; */
+    int status;
+    char * command[5];
+
+    int index = 0;
     int reti;
     regex_t regex;
-    char optional[4] = "";
-    const char * username;
-    char command[300] = "";
+    char * username;
+
+    /* TODO disposable */
+    /* int i; */
 
     if(argc < 2 || argc > 3)
     {
@@ -36,9 +51,12 @@ int main (int argc, char *argv[])
         return 1;
     }
 
+    command[index++] = file;
+    command[index++] = "-s";
+
     if(argc == 3)
     {
-        sprintf(optional," %s",argv[1]);
+        command[index++] = argv[1];
         username = argv[2];
     }
     else
@@ -63,9 +81,58 @@ int main (int argc, char *argv[])
         return 1;
     }
 
-    sprintf(command,"%s%s %s\n",prefix,optional,username);
+    command[index++] = username;
+    command[index++] = NULL;
 
-    printf(command);
+    pid = fork();
 
-    return 0;
+    if(pid < 0)
+    {
+        fprintf(stderr, "Could not fork process.\n");
+        return 1;
+    }
+
+    if(pid > 0)
+    {
+        while ((ret = waitpid(pid, &status, 0)) == -1)
+        {
+            if (errno != EINTR)
+                return errno;
+        }
+
+        if ((ret != -1) && (!WIFEXITED(status) || !WEXITSTATUS(status)) )
+            return WEXITSTATUS(status);
+
+        return 0;
+    }
+
+    /* printf("%s",command[0]); */
+    /* for(i=1; i<5;i++) */
+    /* { */
+    /*     if(command[i] == NULL) */
+    /*         break; */
+    /*     printf(" %s",command[i]); */
+    /* } */
+    /* printf("\n"); */
+
+    if (execve(file, command, NULL) == -1)
+        return 127;
+
+    /* while (0 == (waitret = waitpid(pid, &status, WNOHANG))) */
+    /* { */
+    /*     timeout = timeout - 100; */
+
+    /*     if(timeout < 0) */
+    /*     { */
+    /*         fprintf(stderr, "Timeout.\n"); */
+    /*         return -1; */
+    /*     } */
+
+    /*     sleep(100); */
+    /* } */
+
+    /* if ((ret != -1) && (!WIFEXITED(status) || !WEXITSTATUS(status)) ) */
+    /*     return WEXITSTATUS(status); */
+
+    /* return 0; */
 }
