@@ -9,11 +9,12 @@
 #include <stdlib.h>
 
 /* Runs /usr/bin/smbpasswd -s (-x|-a)? USERNAME
+ * '-s' is compulsory.
  * */
 
 char const * make_usage(char const * const name)
 {
-    char const * const pattern = "%s [-a|-x] USERNAME\n";
+    char const * const pattern = "%s -s [-a|-x] USERNAME\n";
     int const size = strlen(pattern) + strlen(name) - 1;
     char * buffer = malloc(size);
     sprintf(buffer,pattern,name);
@@ -49,13 +50,19 @@ int main (int const argc, char const * const argv[])
     /* TODO disposable */
     /* int i; */
 
-    if(argc < 2 || argc > 3)
+    if(argc < 3 || argc > 4)
     {
         fprintf(stderr, usage);
         return 1;
     }
 
-    if(argc == 3 && !streq(argv[1], "-a") && !streq(argv[1],"-x"))
+    if(!streq(argv[1],"-s"))
+    {
+        fprintf(stderr, usage);
+        return 1;
+    }
+
+    if(argc == 4 && !streq(argv[2], "-a") && !streq(argv[2],"-x"))
     {
         fprintf(stderr, usage);
         return 1;
@@ -64,13 +71,13 @@ int main (int const argc, char const * const argv[])
     mstrcpy(&command[index++],file);
     mstrcpy(&command[index++],"-s");
 
-    if(argc == 3)
+    if(argc == 4)
     {
-        mstrcpy(&command[index++],argv[1]);
-        username = argv[2];
+        mstrcpy(&command[index++],argv[2]);
+        username = argv[3];
     }
     else
-        username = argv[1];
+        username = argv[2];
 
 
     /* Username regex.
