@@ -81,6 +81,12 @@ int main (int argc, char *argv[])
         return 1;
     }
 
+    if(streq(username,"root"))
+    {
+        fprintf(stderr, "root not allowed.\n");
+        return 1;
+    }
+
     command[index++] = username;
     command[index++] = NULL;
 
