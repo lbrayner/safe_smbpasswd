@@ -3,27 +3,32 @@
 #include <string.h>
 
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <errno.h>
-/* #include <stdlib.h> */
+#include <stdlib.h>
 
 /* Runs /usr/bin/smbpasswd -s (-x|-a)? USERNAME
  * */
 
-char * usage()
+char const * make_usage(char const * const name)
 {
-    return "./safe_smbpasswd [-a|-x] USERNAME\n";
+    char const * const pattern = "%s [-a|-x] USERNAME\n";
+    int const size = strlen(pattern) + strlen(name) - 1;
+    char * buffer = malloc(size);
+    sprintf(buffer,pattern,name);
+    return buffer;
 }
 
-int streq(char * left, char * right)
+int streq(char const * const left, char const * const right)
 {
     return strcmp(left,right) == 0;
 }
 
-int main (int argc, char *argv[])
+int main (int const argc, char const * const argv[])
 {
-    char * const file = "/usr/bin/smbpasswd";
+    char const * const usage = make_usage(argv[0]);
+    char const * const file = "/usr/bin/smbpasswd";
 
     pid_t pid;
     pid_t ret;
@@ -34,29 +39,29 @@ int main (int argc, char *argv[])
     int index = 0;
     int reti;
     regex_t regex;
-    char * username;
+    char const * username;
 
     /* TODO disposable */
     /* int i; */
 
     if(argc < 2 || argc > 3)
     {
-        fprintf(stderr, usage());
+        fprintf(stderr, usage);
         return 1;
     }
 
     if(argc == 3 && !streq(argv[1], "-a") && !streq(argv[1],"-x"))
     {
-        fprintf(stderr, usage());
+        fprintf(stderr, usage);
         return 1;
     }
 
-    command[index++] = file;
-    command[index++] = "-s";
+    strcpy(command[index++],file);
+    strcpy(command[index++],"-s");
 
     if(argc == 3)
     {
-        command[index++] = argv[1];
+        strcpy(command[index++],argv[1]);
         username = argv[2];
     }
     else
@@ -87,7 +92,7 @@ int main (int argc, char *argv[])
         return 1;
     }
 
-    command[index++] = username;
+    strcpy(command[index++],username);
     command[index++] = NULL;
 
     pid = fork();
