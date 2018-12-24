@@ -11,7 +11,7 @@
 /* Runs /usr/bin/smbpasswd (-s -a?|-x) USERNAME
  * */
 
-char const * make_usage(char const * const name)
+char * make_usage(char const * const name)
 {
     char const * const pattern = "%s (-s -a?|-x) USERNAME\n";
     int const size = strlen(pattern) - 1 /* the placeholder %s */ + strlen(name)
@@ -32,15 +32,27 @@ char * mstrcpy(char ** destination, char const * const source)
     return strcpy(*destination,source);
 }
 
+void cfree(char * array[], int const length)
+{
+    int i;
+    for(i=0;i<length;i++)
+    {
+        if(array[i] == NULL)
+            break;
+
+        free(array[i]);
+    }
+}
+
 int main (int const argc, char const * const argv[])
 {
-    char const * const usage = make_usage(argv[0]);
+    char * const usage = make_usage(argv[0]);
     char const * const file = "/usr/bin/smbpasswd";
 
     pid_t pid;
     pid_t ret;
     int status;
-    char * command[5];
+    char * command[5] = {NULL, NULL, NULL, NULL, NULL};
 
     int index = 0;
     int reti;
@@ -65,14 +77,12 @@ int main (int const argc, char const * const argv[])
         return 1;
     }
 
-    mstrcpy(&command[index++],file);
-    mstrcpy(&command[index++],argv[1]);
+    /* We don't need this anymore.
+     * */
+    free(usage);
 
     if(argc == 4)
-    {
-        mstrcpy(&command[index++],argv[2]);
         username = argv[3];
-    }
     else
         username = argv[2];
 
@@ -101,9 +111,6 @@ int main (int const argc, char const * const argv[])
         return 1;
     }
 
-    mstrcpy(&command[index++],username);
-    command[index++] = NULL;
-
     pid = fork();
 
     if(pid < 0)
@@ -126,7 +133,21 @@ int main (int const argc, char const * const argv[])
         return 0;
     }
 
-    if (execve(file, command, NULL) == -1)
-        return 127;
+    mstrcpy(&command[index++],file);
+    mstrcpy(&command[index++],argv[1]);
 
+    if(argc == 4)
+        mstrcpy(&command[index++],argv[2]);
+
+    mstrcpy(&command[index++],username);
+    command[index++] = NULL;
+
+    if(execve(file, command, NULL) == -1)
+    {
+        cfree(command,5);
+        return 127;
+    }
+
+    cfree(command,5);
+    return 0;
 }
