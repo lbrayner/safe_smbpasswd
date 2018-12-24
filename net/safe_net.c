@@ -138,7 +138,4 @@ int main (int const argc, char const * const argv[])
         cfree(command,7);
         return 127;
     }
-
-    cfree(command,7);
-    return 0;
 }
