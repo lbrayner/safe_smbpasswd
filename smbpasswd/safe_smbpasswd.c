@@ -32,7 +32,7 @@ char * mstrcpy(char ** destination, char const * const source)
     return strcpy(*destination,source);
 }
 
-void cfree(char * array[], int const length)
+void command_free(char * array[], int const length)
 {
     int i;
     for(i=0;i<length;i++)
@@ -144,7 +144,7 @@ int main (int const argc, char const * const argv[])
 
     if(execve(file, command, NULL) == -1)
     {
-        cfree(command,5);
+        command_free(command,5);
         return 127;
     }
 }
