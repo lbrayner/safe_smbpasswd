@@ -14,7 +14,8 @@
 char const * make_usage(char const * const name)
 {
     char const * const pattern = "%s sam set pwdmustchangenow USERNAME yes\n";
-    int const size = strlen(pattern) + strlen(name) - 1;
+    int const size = strlen(pattern) - 1 /* the placeholder %s */ + strlen(name)
+        + 1 /* the null character */;
     char * buffer = malloc(size);
     sprintf(buffer,pattern,name);
     return buffer;
@@ -27,7 +28,7 @@ int streq(char const * const left, char const * const right)
 
 char * mstrcpy(char ** destination, char const * const source)
 {
-    *destination = malloc(strlen(source));
+    *destination = malloc(strlen(source) + 1 /* the null character */);
     return strcpy(*destination,source);
 }
 
