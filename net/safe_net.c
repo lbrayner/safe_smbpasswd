@@ -62,6 +62,7 @@ int main (int const argc, char const * const argv[])
     if(argc != 6)
     {
         fprintf(stderr, usage);
+        free(usage);
         return 1;
     }
 
@@ -69,6 +70,7 @@ int main (int const argc, char const * const argv[])
             !streq(argv[3],"pwdmustchangenow") || !streq(argv[5],"yes"))
     {
         fprintf(stderr, usage);
+        free(usage);
         return 1;
     }
 

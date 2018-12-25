@@ -62,18 +62,21 @@ int main (int const argc, char const * const argv[])
     if(argc < 3 || argc > 4)
     {
         fprintf(stderr, usage);
+        free(usage);
         return 1;
     }
 
     if(argc == 3 && !streq(argv[1], "-s") && !streq(argv[1],"-x"))
     {
         fprintf(stderr, usage);
+        free(usage);
         return 1;
     }
 
     if(argc == 4 && (!streq(argv[1], "-s") || !streq(argv[2],"-a")))
     {
         fprintf(stderr, usage);
+        free(usage);
         return 1;
     }
 
