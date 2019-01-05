@@ -1,3 +1,4 @@
 *.o
 safe_smbpasswd
 safe_net
+safe_nmap

@@ -99,7 +99,10 @@ int main (int const argc, char const * const argv[])
 
     /* IP or subnet regex.
      * */
-    reti = regcomp(&regex, "^\\[:digit:]([:digit:]{2})?\\.[:digit:]([:digit:]{2})?$", REG_EXTENDED);
+    reti = regcomp(&regex,
+        "^([[:digit:]][[:digit:]]?[[:digit:]]?\\.){3}"
+        "[[:digit:]][[:digit:]]?[[:digit:]]?(/[[:digit:]][[:digit:]]?)?$"
+        , REG_EXTENDED);
 
     if(reti)
     {
@@ -115,40 +118,40 @@ int main (int const argc, char const * const argv[])
         return 1;
     }
 
-    /* pid = fork(); */
+    pid = fork();
 
-    /* if(pid < 0) */
-    /* { */
-    /*     fprintf(stderr, "Could not fork process.\n"); */
-    /*     return 1; */
-    /* } */
+    if(pid < 0)
+    {
+        fprintf(stderr, "Could not fork process.\n");
+        return 1;
+    }
 
-    /* if(pid > 0) */
-    /* { */
-    /*     while ((ret = waitpid(pid, &status, 0)) == -1) */
-    /*     { */
-    /*         if (errno != EINTR) */
-    /*             return errno; */
-    /*     } */
+    if(pid > 0)
+    {
+        while ((ret = waitpid(pid, &status, 0)) == -1)
+        {
+            if (errno != EINTR)
+                return errno;
+        }
 
-    /*     if ((ret != -1) && (!WIFEXITED(status) || !WEXITSTATUS(status)) ) */
-    /*         return WEXITSTATUS(status); */
+        if ((ret != -1) && (!WIFEXITED(status) || !WEXITSTATUS(status)) )
+            return WEXITSTATUS(status);
 
-    /*     return 0; */
-    /* } */
+        return 0;
+    }
 
-    /* mstrcpy(&command[index++],file); */
-    /* mstrcpy(&command[index++],argv[1]); */
-    /* mstrcpy(&command[index++],argv[2]); */
-    /* mstrcpy(&command[index++],argv[3]); */
+    mstrcpy(&command[index++],file);
+    mstrcpy(&command[index++],argv[1]);
+    mstrcpy(&command[index++],argv[2]);
+    mstrcpy(&command[index++],argv[3]);
 
-    /* mstrcpy(&command[index++],filename); */
-    /* mstrcpy(&command[index++],argv[5]); */
-    /* command[index++] = NULL; */
+    mstrcpy(&command[index++],filename);
+    mstrcpy(&command[index++],ip_or_subnet);
+    command[index++] = NULL;
 
-    /* if(execve(file, command, NULL) == -1) */
-    /* { */
-    /*     command_free(command,7); */
-    /*     return 127; */
-    /* } */
+    if(execve(file, command, NULL) == -1)
+    {
+        command_free(command,7);
+        return 127;
+    }
 }
