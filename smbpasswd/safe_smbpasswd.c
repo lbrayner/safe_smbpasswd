@@ -14,7 +14,7 @@
 char * make_usage(char const * const name)
 {
     char const * const pattern = "%s (-s -a?|-x) USERNAME\n";
-    int const size = strlen(pattern) - 1 /* the placeholder %s */ + strlen(name)
+    int const size = strlen(pattern) - 2 /* the placeholder %s */ + strlen(name)
         + 1 /* the null character */;
     char * buffer = malloc(size);
     sprintf(buffer,pattern,name);
